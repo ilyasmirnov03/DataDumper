@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using DataDumper.ItemDump;
+using Newtonsoft.Json.Serialization;
 
 namespace DataDumper
 {
@@ -28,14 +29,20 @@ namespace DataDumper
                 {
                     continue;
                 }
-                
-                ItemData itemDataInstance = new ItemData(item, i);
-                
 
+                ItemData itemDataInstance = new ItemData(item, i);
                 exportList.Add(itemDataInstance);
             }
 
-            string jsonOutput = JsonConvert.SerializeObject(exportList, Formatting.Indented);
+            string jsonOutput = JsonConvert.SerializeObject(exportList, new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new  CamelCaseNamingStrategy()
+                },
+                Formatting = Formatting.Indented,
+            });
+
             // Write to Main.SavePath (Documents/My Games/Terraria/tModLoader)
             string outputPath = Path.Combine(Main.SavePath, "Terraria_Item_Dump.json");
             File.WriteAllText(outputPath, jsonOutput);
