@@ -1,13 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using DataDumper.ItemDump;
 
 namespace DataDumper
 {
@@ -21,7 +18,7 @@ namespace DataDumper
         // Hook into the post-setup phase where all data is ready
         public override void PostSetupContent()
         {
-            List<object> exportList = new List<object>();
+            List<ItemData> exportList = new List<ItemData>();
             for (int i = 0; i < ItemID.Count; i++)
             {
                 // Instantiate and hydrate the item
@@ -31,38 +28,11 @@ namespace DataDumper
                 {
                     continue;
                 }
-                var itemData = new
-                {
-                    id = i,
-                    internalName = ItemID.Search.GetName(i), // The "Source Code" name
-                    displayName = Lang.GetItemNameValue(i), // The "In-Game" name
-                    stats = new
-                    {
-                        damage = item.damage,
-                        defense = item.defense,
-                        crit = item.crit,
-                        knockback = item.knockBack,
-                        value = item.value, // Sell price in copper coins
-                        rarity = item.rare
-                    },
-                    usage = new
-                    {
-                        useTime = item.useTime,
-                        useAnimation = item.useAnimation,
-                        useStyle = item.useStyle,
-                        autoReuse = item.autoReuse,
-                        consumable = item.consumable,
-                        maxStack = item.maxStack
-                    },
-                    // Extracting from ItemID.Sets (External Arrays)
-                    tags = new
-                    {
-                        isBossBag = ItemID.Sets.BossBag[i],
-                        isYoyo = ItemID.Sets.Yoyo[i],
-                        isAccessory = item.accessory
-                    }
-                };
-                exportList.Add(itemData);
+                
+                ItemData itemDataInstance = new ItemData(item, i);
+                
+
+                exportList.Add(itemDataInstance);
             }
 
             string jsonOutput = JsonConvert.SerializeObject(exportList, Formatting.Indented);
